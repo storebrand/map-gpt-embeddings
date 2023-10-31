@@ -59,6 +59,17 @@ class GPTEmbeddingMapper(BasicPassthroughMapper):
             secret=True,
             description="OpenAI API key. Optional if `OPENAI_API_KEY` env var is set.",
         ),
+        th.Property(
+            "use_msi",
+            th.BooleanType,
+            description="Use Azure Managed Identity for authentication (Azure OpenAI Service only)"
+        ),
+        th.property(
+            "api_endpoint",
+            th.StringType,
+            description="Azure OpenAI API Endpoint",
+            default="https://api.openai.com"
+        )
     ).to_dict()
 
     def _validate_config(
@@ -86,9 +97,11 @@ class GPTEmbeddingMapper(BasicPassthroughMapper):
             raise_errors
             and self.config.get("openai_api_key", None) is None
             and "OPENAI_API_KEY" not in os.environ
+            and self.config.get("use_msi", None) is None
         ):
             raise exceptions.ConfigValidationError(
                 "Must set at least one of the following: `openai_api_key` setting, "
+                "`use_msi` to true, "
                 f"`{self.name.upper().replace('-', '_')}_OPEN_API_KEY` env var, or "
                 " `OPENAI_API_KEY` env var."
             )
