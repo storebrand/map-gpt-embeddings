@@ -60,9 +60,9 @@ class GPTEmbeddingMapper(BasicPassthroughMapper):
             description="OpenAI API key. Optional if `OPENAI_API_KEY` env var is set.",
         ),
         th.Property(
-            "use_msi",
-            th.BooleanType,
-            description="Use Azure Managed Identity for authentication (Azure OpenAI Service only)"
+            "msi_client_id",
+            th.StringType,
+            description="Azure Managed Identity for authentication"
         ),
         th.property(
             "api_endpoint",
