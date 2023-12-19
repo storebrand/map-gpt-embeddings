@@ -50,7 +50,6 @@ class GPTEmbeddingMapper(BasicPassthroughMapper):
         th.Property(
             "document_metadata_property",
             th.StringType,
-            default="metadata",
             description="The name of the property containing the document metadata."
         ),
         th.Property(
@@ -58,6 +57,28 @@ class GPTEmbeddingMapper(BasicPassthroughMapper):
             th.StringType,
             secret=True,
             description="OpenAI API key. Optional if `OPENAI_API_KEY` env var is set.",
+        ),
+        th.Property(
+            "msi_client_id",
+            th.StringType,
+            description="Azure Managed Identity for authentication"
+        ),
+        th.Property(
+            "use_msi",
+            th.BooleanType,
+            description="Use Azure Managed Identity for authentication",
+            default=False
+        ),
+        th.Property(
+            "api_endpoint",
+            th.StringType,
+            description="Azure OpenAI API Endpoint",
+            default="https://api.openai.com"
+        ),
+        th.Property(
+            "deployment_name",
+            th.StringType,
+            description="Azure OpenAI Deployment Name"
         ),
     ).to_dict()
 
@@ -86,9 +107,11 @@ class GPTEmbeddingMapper(BasicPassthroughMapper):
             raise_errors
             and self.config.get("openai_api_key", None) is None
             and "OPENAI_API_KEY" not in os.environ
+            and self.config.get("use_msi", None) is None
         ):
             raise exceptions.ConfigValidationError(
                 "Must set at least one of the following: `openai_api_key` setting, "
+                "`use_msi` to true, "
                 f"`{self.name.upper().replace('-', '_')}_OPEN_API_KEY` env var, or "
                 " `OPENAI_API_KEY` env var."
             )
@@ -104,7 +127,11 @@ class GPTEmbeddingMapper(BasicPassthroughMapper):
             A generator of record dicts.
         """
         raw_document_text = record[self.config["document_text_property"]]
-        metadata_dict = record[self.config["document_metadata_property"]]
+
+        if self.config.get("document_metadata_property", None):
+            metadata_dict = record[self.config["document_metadata_property"]]
+        else:
+            metadata_dict = {}
 
         if not self.config.get("split_documents", True):
             yield record
@@ -132,7 +159,8 @@ class GPTEmbeddingMapper(BasicPassthroughMapper):
         for doc_segment in document_segments:
             new_record = record.copy()
             new_record[self.config["document_text_property"]] = doc_segment.page_content
-            new_record[self.config["document_metadata_property"]] = doc_segment.metadata
+            if self.config.get("document_metadata_property", None):
+                new_record[self.config.get["document_metadata_property"]] = doc_segment.metadata
             yield new_record
 
     def map_record_message(self, message_dict: dict) -> t.Iterable[RecordMessage]:
