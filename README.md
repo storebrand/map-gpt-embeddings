@@ -3,6 +3,10 @@
 Inline mapper for splitting documents and calculating OpenAI embeddings, for purposes of building vectorstore knowledge base usable by GPT and ChatGPT.
 Split documents into segments, then vectorize.
 
+This version of the mapper is a small modification of the original [map-gpt-embeddings](https://github.com/MeltanoLabs/map-gpt-embeddings) mapper, modified to work with the Azure OpenAI API.
+
+Authentication can be either via API key or native Azure authentication either through managed identity or `DefaultAzureCredential`. If no authentication is provided, the mapper will attempt to use `DefaultAzureCredential` to authenticate with Azure, otherwise specify either `openai_api_key` for authentication with a Bearer token, or `msi_client_id` to authenticate with a specific managed identity.
+
 Built with the [Meltano Singer SDK](https://sdk.meltano.com).
 
 ## Capabilities
