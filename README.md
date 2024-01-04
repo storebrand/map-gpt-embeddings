@@ -3,6 +3,10 @@
 Inline mapper for splitting documents and calculating OpenAI embeddings, for purposes of building vectorstore knowledge base usable by GPT and ChatGPT.
 Split documents into segments, then vectorize.
 
+This version of the mapper is a small modification of the original [map-gpt-embeddings](https://github.com/MeltanoLabs/map-gpt-embeddings) mapper, modified to work with the Azure OpenAI API.
+
+Authentication can be either via API key or native Azure authentication either through managed identity or `DefaultAzureCredential`. If no authentication is provided, the mapper will attempt to use `DefaultAzureCredential` to authenticate with Azure, otherwise specify either `openai_api_key` for authentication with a Bearer token, or `msi_client_id` to authenticate with a specific managed identity.
+
 Built with the [Meltano Singer SDK](https://sdk.meltano.com).
 
 ## Capabilities
@@ -13,9 +17,13 @@ Built with the [Meltano Singer SDK](https://sdk.meltano.com).
 
 | Setting                   | Required | Default | Description |
 |:--------------------------|:--------:|:-------:|:------------|
-| document_text_property    | False    | page_content |             |
-| document_metadata_property| False    | metadata |             |
+| document_text_property    | False    | page_content | The name of the property containing the document text. |
+| document_metadata_property| False    | None    | The name of the property containing the document metadata. |
 | openai_api_key            | False    | None    | OpenAI API key. Optional if `OPENAI_API_KEY` env var is set. |
+| msi_client_id             | False    | None    | Azure Managed Identity for authentication |
+| use_msi                   | False    |       0 | Use Azure Managed Identity for authentication |
+| api_endpoint              | False    | https://api.openai.com | Azure OpenAI API Endpoint |
+| deployment_name           | False    | None    | Azure OpenAI Deployment Name |
 | stream_maps               | False    | None    | Config object for stream maps capability. For more information check out [Stream Maps](https://sdk.meltano.com/en/latest/stream_maps.html). |
 | stream_map_config         | False    | None    | User-defined config values to be used within map expressions. |
 
