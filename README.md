@@ -1,3 +1,6 @@
+# ⚠️ This repository is no longer being maintained
+Storebrand have moved on from Meltano, and we're therefore no longer maintaining this repository. 
+
 # `map-gpt-embeddings`
 
 Inline mapper for splitting documents and calculating OpenAI embeddings, for purposes of building vectorstore knowledge base usable by GPT and ChatGPT.
